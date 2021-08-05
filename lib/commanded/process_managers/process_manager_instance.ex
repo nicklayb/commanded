@@ -184,7 +184,7 @@ defmodule Commanded.ProcessManagers.ProcessManagerInstance do
     %RecordedEvent{correlation_id: correlation_id, event_id: event_id, event_number: event_number} =
       event
 
-    %State{idle_timeout: idle_timeout} = state
+    %State{idle_timeout: idle_timeout, process_manager_module: process_manager_module} = state
 
     telemetry_metadata = telemetry_metadata(event, state)
     start_time = telemetry_start(telemetry_metadata)
@@ -217,7 +217,8 @@ defmodule Commanded.ProcessManagers.ProcessManagerInstance do
         commands = List.wrap(commands)
 
         # Copy event id, as causation id, and correlation id from handled event.
-        opts = [causation_id: event_id, correlation_id: correlation_id, returning: false]
+        metadata = process_manager_module.metadata(event)
+        opts = [causation_id: event_id, correlation_id: correlation_id, returning: false, metadata: metadata]
 
         with :ok <- dispatch_commands(commands, opts, state, event) do
           telemetry_stop(start_time, telemetry_metadata, {:ok, commands})

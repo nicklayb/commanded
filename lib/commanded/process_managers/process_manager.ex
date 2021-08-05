@@ -423,6 +423,8 @@ defmodule Commanded.ProcessManagers.ProcessManager do
               | {:skip, :continue_pending}
               | {:stop, reason :: term()}
 
+  @callback metadata(RecordedEvent.t()) :: map()
+
   @optional_callbacks init: 1, handle: 2, apply: 2, error: 3, interested?: 1
 
   alias Commanded.ProcessManagers.ProcessManager
@@ -491,6 +493,8 @@ defmodule Commanded.ProcessManagers.ProcessManager do
 
       @doc false
       def error({:error, reason}, _command, _failure_context), do: {:stop, reason}
+
+      def metadata(%{} = _), do: %{}
     end
   end
 
